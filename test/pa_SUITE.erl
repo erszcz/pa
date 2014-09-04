@@ -28,9 +28,11 @@ end_per_testcase(_TestCase, _Config) ->
 %%
 
 %% Partial application whose result is a unary function.
-unary(_) ->
-    property(unary, ?FORALL({{_, Fun}, Args}, fun_args(1),
-                            is_function(pa:unary(Fun, Args), 1))).
+unary(Config) -> nary(Config, unary, 1).
+
+nary(_, Property, Arity) ->
+    property(Property, ?FORALL({{_, Fun}, Args}, fun_args(Arity),
+                               is_function(pa:Property(Fun, Args), Arity))).
 
 %% Error when the input function arity or number of args make it impossible
 %% to get a unary function.
