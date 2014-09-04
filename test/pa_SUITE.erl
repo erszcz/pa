@@ -10,6 +10,8 @@
 all() ->
     [nullary,
      unary,
+     binary_,
+     ternary,
      invalid_unary].
 
 init_per_suite(Config) ->
@@ -28,10 +30,11 @@ end_per_testcase(_TestCase, _Config) ->
 %% Tests
 %%
 
+%% Partial application whose result is an N-ary function.
 nullary(Config) -> nary(Config, nullary, 0).
-
-%% Partial application whose result is a unary function.
-unary(Config) -> nary(Config, unary, 1).
+unary(Config)   -> nary(Config, unary, 1).
+binary_(Config) -> nary(Config, binary, 2).
+ternary(Config) -> nary(Config, ternary, 3).
 
 nary(_, Property, Arity) ->
     property(Property, ?FORALL({{_, Fun}, Args}, fun_args(Arity),
