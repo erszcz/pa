@@ -14,8 +14,7 @@
 %%   pa:nary(4, fun mymod:myfun/7, [1,2,3])
 %%
 
-nullary(Fun, Args) ->
-    fun() -> ok end.
+nullary(Fun, Args) -> nary(0, Fun, Args).
 
 unary(Fun, Args) -> nary(1, Fun, Args).
 
@@ -25,5 +24,7 @@ binary(Fun, Args) ->
 ternary(Fun, Args) ->
     fun() -> ok end.
 
+nary(0 = N, Fun, Args) when is_function(Fun, length(Args) + N) ->
+    fun() -> erlang:apply(Fun, Args) end;
 nary(1 = N, Fun, Args) when is_function(Fun, length(Args) + N) ->
     fun(A1) -> erlang:apply(Fun, Args ++ [A1]) end.
