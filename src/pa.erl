@@ -17,8 +17,7 @@
 nullary(Fun, Args) ->
     fun() -> ok end.
 
-unary(Fun, Args) when is_function(Fun, length(Args) + 1) ->
-    fun(A) -> erlang:apply(Fun, Args ++ [A]) end.
+unary(Fun, Args) -> nary(1, Fun, Args).
 
 binary(Fun, Args) ->
     fun() -> ok end.
@@ -26,5 +25,5 @@ binary(Fun, Args) ->
 ternary(Fun, Args) ->
     fun() -> ok end.
 
-nary(N, Fun, Args) ->
-    fun() -> ok end.
+nary(1 = N, Fun, Args) when is_function(Fun, length(Args) + N) ->
+    fun(A) -> erlang:apply(Fun, Args ++ [A]) end.
