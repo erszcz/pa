@@ -8,7 +8,8 @@
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
-    [unary].
+    [unary,
+     invalid_unary].
 
 init_per_suite(Config) ->
     Config.
@@ -26,9 +27,16 @@ end_per_testcase(_TestCase, _Config) ->
 %% Tests
 %%
 
+%% Partial application whose result is a unary function.
 unary(_) ->
-    property(unary, ?FORALL({{_,Fun}, Args}, fun_args(1),
+    property(unary, ?FORALL({{_, Fun}, Args}, fun_args(1),
                             is_function(pa:unary(Fun, Args), 1))).
+
+%% Error when the input function arity or number of args make it impossible
+%% to get a unary function.
+invalid_unary(_) ->
+    property(invalid_unary, ?FORALL({{_, Fun}, Args}, invalid_fun_args(1),
+                                    is_function_clause(catch pa:unary(Fun, Args)))).
 
 %%
 %% Generators
@@ -40,6 +48,10 @@ unary(_) ->
 fun_args(N) when 0 =< N, N =< ?MAX_FUN_ARITY ->
     ?SUCHTHAT({{Arity, _Fun}, Args}, {function(), args()},
               Arity - length(Args) == N).
+
+invalid_fun_args(N) when 0 =< N, N =< ?MAX_FUN_ARITY ->
+    ?SUCHTHAT({{Arity, _Fun}, Args}, {function(), args()},
+              Arity - length(Args) /= N).
 
 function() ->
     ?LET(Arity, fun_arity(), function(Arity)).
@@ -70,3 +82,6 @@ property(Name, Prop) ->
     ?assert(proper:quickcheck(Props, [verbose, long_result,
                                       {numtests, 100},
                                       {constraint_tries, 200}])).
+
+is_function_clause({'EXIT', {function_clause, [{pa, nary, _, _} | _]}}) -> true;
+is_function_clause(_) -> false.
