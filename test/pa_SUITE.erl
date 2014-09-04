@@ -67,4 +67,6 @@ args() ->
 
 property(Name, Prop) ->
     Props = proper:conjunction([{Name, Prop}]),
-    ?assert(proper:quickcheck(Props, [verbose, long_result, {numtests, 100}])).
+    ?assert(proper:quickcheck(Props, [verbose, long_result,
+                                      {numtests, 100},
+                                      {constraint_tries, 200}])).
