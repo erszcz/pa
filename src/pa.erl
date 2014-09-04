@@ -26,4 +26,4 @@ ternary(Fun, Args) ->
     fun() -> ok end.
 
 nary(1 = N, Fun, Args) when is_function(Fun, length(Args) + N) ->
-    fun(A) -> erlang:apply(Fun, Args ++ [A]) end.
+    fun(A1) -> erlang:apply(Fun, Args ++ [A1]) end.
