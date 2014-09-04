@@ -8,7 +8,8 @@
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
-    [unary,
+    [nullary,
+     unary,
      invalid_unary].
 
 init_per_suite(Config) ->
@@ -26,6 +27,8 @@ end_per_testcase(_TestCase, _Config) ->
 %%
 %% Tests
 %%
+
+nullary(Config) -> nary(Config, nullary, 0).
 
 %% Partial application whose result is a unary function.
 unary(Config) -> nary(Config, unary, 1).
