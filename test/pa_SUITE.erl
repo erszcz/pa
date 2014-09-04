@@ -12,7 +12,11 @@ all() ->
      unary,
      binary_,
      ternary,
-     invalid_unary].
+
+     invalid_nullary,
+     invalid_unary,
+     invalid_binary,
+     invalid_ternary].
 
 init_per_suite(Config) ->
     Config.
@@ -41,10 +45,15 @@ nary(_, Property, Arity) ->
                                is_function(pa:Property(Fun, Args), Arity))).
 
 %% Error when the input function arity or number of args make it impossible
-%% to get a unary function.
-invalid_unary(_) ->
-    property(invalid_unary, ?FORALL({{_, Fun}, Args}, invalid_fun_args(1),
-                                    is_function_clause(catch pa:unary(Fun, Args)))).
+%% to get an N-ary function.
+invalid_nullary(Config) -> invalid_nary(Config, invalid_nullary, nullary, 0).
+invalid_unary(Config)   -> invalid_nary(Config, invalid_unary, unary, 1).
+invalid_binary(Config)  -> invalid_nary(Config, invalid_binary, binary, 2).
+invalid_ternary(Config) -> invalid_nary(Config, invalid_ternary, ternary, 3).
+
+invalid_nary(_, Property, Function, Arity) ->
+    property(Property, ?FORALL({{_, Fun}, Args}, invalid_fun_args(Arity),
+                               is_function_clause(catch pa:Function(Fun, Args)))).
 
 %%
 %% Generators
