@@ -8,15 +8,8 @@
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
-    [nullary,
-     unary,
-     binary_,
-     ternary,
-
-     invalid_nullary,
-     invalid_unary,
-     invalid_binary,
-     invalid_ternary].
+    [bind,
+     invalid_bind].
 
 init_per_suite(Config) ->
     Config.
@@ -35,25 +28,15 @@ end_per_testcase(_TestCase, _Config) ->
 %%
 
 %% Partial application whose result is an N-ary function.
-nullary(Config) -> nary(Config, nullary, 0).
-unary(Config)   -> nary(Config, unary, 1).
-binary_(Config) -> nary(Config, binary, 2).
-ternary(Config) -> nary(Config, ternary, 3).
-
-nary(_, Property, Arity) ->
-    property(Property, ?FORALL({{_, Fun}, Args}, fun_args(Arity),
-                               is_function(pa:Property(Fun, Args), Arity))).
+bind(Config) ->
+    property(bind, ?FORALL({{Arity, Fun}, Args}, fun_args(),
+                           is_applied_properly(Arity, Fun, Args))).
 
 %% Error when the input function arity or number of args make it impossible
 %% to get an N-ary function.
-invalid_nullary(Config) -> invalid_nary(Config, invalid_nullary, nullary, 0).
-invalid_unary(Config)   -> invalid_nary(Config, invalid_unary, unary, 1).
-invalid_binary(Config)  -> invalid_nary(Config, invalid_binary, binary, 2).
-invalid_ternary(Config) -> invalid_nary(Config, invalid_ternary, ternary, 3).
-
-invalid_nary(_, Property, Function, Arity) ->
-    property(Property, ?FORALL({{_, Fun}, Args}, invalid_fun_args(Arity),
-                               is_function_clause(catch pa:Function(Fun, Args)))).
+invalid_bind(Config) ->
+    property(invalid_bind, ?FORALL({{_, Fun}, Args}, invalid_fun_args(),
+                                   is_not_applied(Fun, Args))).
 
 %%
 %% Generators
@@ -62,13 +45,13 @@ invalid_nary(_, Property, Function, Arity) ->
 -define(MAX_FUN_ARITY, 10).
 
 %% Partially applying Fun to Args should give a fun of arity N.
-fun_args(N) when 0 =< N, N =< ?MAX_FUN_ARITY ->
+fun_args() ->
     ?SUCHTHAT({{Arity, _Fun}, Args}, {function(), args()},
-              Arity - length(Args) == N).
+              Arity - length(Args) >= 0).
 
-invalid_fun_args(N) when 0 =< N, N =< ?MAX_FUN_ARITY ->
+invalid_fun_args() ->
     ?SUCHTHAT({{Arity, _Fun}, Args}, {function(), args()},
-              Arity - length(Args) /= N).
+              Arity - length(Args) < 0).
 
 function() ->
     ?LET(Arity, fun_arity(), function(Arity)).
@@ -100,5 +83,17 @@ property(Name, Prop) ->
                                       {numtests, 100},
                                       {constraint_tries, 200}])).
 
-is_function_clause({'EXIT', {function_clause, [{pa, nary, _, _} | _]}}) -> true;
-is_function_clause(_) -> false.
+is_not_applied(Fun, Args) ->
+    try
+        apply(pa, bind, [Fun|Args]),
+        false
+    catch error:badarg ->
+        true
+    end.
+
+is_applied_properly(Arity, Fun, Args) ->
+    Result = apply(pa, bind, [Fun|Args]),
+    RemainingArity = Arity - length(Args),
+    RemainingArgs = lists:seq(length(Args)+1, Arity),
+    is_function(Result, RemainingArity) andalso
+    apply(Result, RemainingArgs) =:= Arity.
