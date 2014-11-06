@@ -2,11 +2,11 @@
 
 -compile({parse_transform, pa_pt}).
 
-% Parse transform generates set of functions bind/1-N
+% Parse transform generates set of functions bind/1-(N+1)
 % that will be exported from this module.
 %
 % Value of N is set via macro 'max_partial_arity'.
-% Default value is 10.
+% Default value is 15.
 %
 % The generated set of functions is equivalent to the following example
 % (for N=3) accompanied by the corresponding AST that should be helpful

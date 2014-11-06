@@ -3,7 +3,7 @@
 -export([parse_transform/2]).
 
 -ifndef(max_partial_arity).
--define(max_partial_arity, 10).
+-define(max_partial_arity, 15).
 -endif.
 
 -define(FUNCTION, bind).
