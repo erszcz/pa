@@ -5,8 +5,8 @@
 An example says more than a thousand words:
 
 ```erlang
-> Times2 = pa:unary(fun erlang:'*'/2, [2]).
-#Fun<pa.3.32156567>
+> Times2 = pa:bind(fun erlang:'*'/2, 2).
+#Fun<pa.17.35850360>
 > lists:map(Times2, [1,2,3]).
 [2,4,6]
 ```
@@ -79,8 +79,8 @@ do_something_on_a_list_of_items(ListOfItems) ->
     SomeVar1 = get_some_var1(),
     SomeVar2 = get_some_var2(),
     SomeVar3 = get_some_var3(),
-    lists:map(pa:unary(fun do_something_with_one_item/4,
-                       [SomeVar1, SomeVar2, SomeVar3]), ListOfItems).
+    lists:map(pa:bind(fun do_something_with_one_item/4,
+                      SomeVar1, SomeVar2, SomeVar3), ListOfItems).
 
 do_something_with_one_item(SomeVar1, SomeVar2, SomeVar3, Elem) ->
     %% still a long function using variables
@@ -95,10 +95,9 @@ Of course, `map/2` and `foreach/2` require unary functions,
 but `foldl/3` a binary one and you might come up with a number of
 functions with **even wilder** requirements!
 
-Here's what `pa.erl` offers:
+You can define the maximum supported arity by defining the value of the
+```max_partial_arity``` macro during compilation.
 
-```erlang
-pa:unary(fun mymod:myfun/4, [1,2,3])
-pa:binary(fun mymod:myfun/4, [1,2])
-pa:nary(4, fun mymod:myfun/7, [1,2,3])
-```
+Defining it in your ```rebar.config``` file is a pretty convenient way to do so.
+
+The default value is **15**.
