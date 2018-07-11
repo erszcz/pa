@@ -62,7 +62,7 @@ do_something_with_one_item(SomeVar1, SomeVar2, SomeVar3, Elem) ->
     ...
 ```
 
-The end result if functionally the same,
+The end result is functionally the same,
 but `do_something_with_one_item/4` is perfectly traceable and doesn't suffer
 from _pathological indentosis_.
 
